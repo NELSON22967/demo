@@ -29,5 +29,5 @@ export const getAllUsers = async (req, res) => {
 }
 
 export const getMessage = (req, res) => {
-    res.status(200).json({ message: "Hello from user controller!" });
+    res.status(200).json({ message: "Hello from user controller[NELSON]!" });
 }
