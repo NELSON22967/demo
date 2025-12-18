@@ -13,7 +13,7 @@ const app = express();
 
 //middleware
 app.use(express.json());
-app.use('/api/', usersRouter);
+app.use('/', usersRouter);
 
 // Load environment variables from .env file
 dotenv.config();
