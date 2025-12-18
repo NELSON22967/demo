@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import connectDb from './dataBase/db.js'
 
 //importing routes
-import usersRouter from '../demo/routes/userRoutes.js'; // Import the router
+import usersRouter from './routes/userRoutes.js'; // Import the router
 
 
 // Initialize Express app

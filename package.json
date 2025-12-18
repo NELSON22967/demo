@@ -7,8 +7,8 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "dev": "node server.js",
-    "start": "nodemon server.js"
+    "dev": "node src/server.js",
+    "start": "nodemon src/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
