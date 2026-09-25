@@ -1,141 +1,184 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Worker Portal</title>
+<title>Worker Portal - Business Registration</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="bg-gray-50">
 
-<!-- LOGIN -->
-<div id="loginPage" class="min-h-screen flex items-center justify-center p-4">
+<script>
+// GET URL PARAMS
+function getParam(name){ return new URLSearchParams(window.location.search).get(name); }
+let step = getParam('step') || 'login';
+let type = getParam('type') || localStorage.getItem('currentType') || '';
+if(type) localStorage.setItem('currentType', type);
+let regData = JSON.parse(localStorage.getItem('regData') || '{}');
+</script>
+
+<!-- LOGIN PAGE -->
+<div id="page-login" class="hidden min-h-screen flex items-center justify-center p-4">
   <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm">
     <h1 class="text-2xl font-bold">Worker Login</h1>
-    <p class="text-gray-500 mb-6 text-sm">Business Registration System</p>
-    <input id="workerName" placeholder="Worker Name" class="w-full p-3 border rounded-xl mb-3" value="John">
-    <input id="workerPhone" placeholder="Phone" class="w-full p-3 border rounded-xl mb-4" value="0712345678">
-    <button onclick="login()" class="w-full bg-black text-white p-3 rounded-xl font-bold">Login</button>
-    <p class="text-xs text-gray-400 mt-3 text-center">Demo - any name works</p>
+    <p class="text-gray-500 mb-6 text-sm">Business Registration</p>
+    <input id="workerName" placeholder="Worker Name" class="w-full p-3 border rounded-xl mb-3">
+    <input id="workerPhone" placeholder="Phone / ID" class="w-full p-3 border rounded-xl mb-4">
+    <button onclick="doLogin()" class="w-full bg-black text-white p-3 rounded-xl font-bold">Login</button>
   </div>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboardPage" class="hidden p-4 max-w-5xl mx-auto">
+<!-- DASHBOARD PAGE -->
+<div id="page-dashboard" class="hidden p-4 max-w-5xl mx-auto">
   <div class="flex justify-between items-center mb-6">
     <h1 class="text-xl font-bold">Hi, <span id="wName"></span> 👋</h1>
-    <button onclick="logout()" class="text-sm bg-white px-3 py-1 rounded-full shadow">Logout</button>
+    <button onclick="doLogout()" class="text-sm bg-white px-3 py-1 rounded-full shadow">Logout</button>
   </div>
-
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
     <div class="bg-white p-4 rounded-2xl shadow"><p class="text-[11px] text-gray-500">TODAY</p><p class="text-2xl font-bold" id="counter">0/30</p><div class="w-full bg-gray-200 h-2 rounded mt-2"><div id="progress" class="bg-green-500 h-2 rounded" style="width:0%"></div></div></div>
     <div class="bg-white p-4 rounded-2xl shadow"><p class="text-[11px] text-gray-500">REMAINING</p><p class="text-2xl font-bold" id="remain">30</p></div>
-    <div class="bg-white p-4 rounded-2xl shadow"><p class="text-[11px] text-gray-500">TOTAL DONE</p><p class="text-2xl font-bold" id="totalDone">0</p></div>
-    <div class="bg-white p-4 rounded-2xl shadow"><p class="text-[11px] text-gray-500">REVIEWS</p><p class="text-sm">See below</p></div>
+    <div class="bg-white p-4 rounded-2xl shadow"><p class="text-[11px] text-gray-500">TOTAL</p><p class="text-2xl font-bold" id="totalDone">0</p></div>
+    <div class="bg-white p-4 rounded-2xl shadow"><p class="text-[11px] text-gray-500">DAILY TARGET</p><p class="text-2xl font-bold">30</p></div>
   </div>
-
   <h2 class="font-bold mb-3">Register New Business</h2>
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-    <button onclick="openForm('shop')" class="bg-white p-6 rounded-2xl shadow text-center hover:bg-black hover:text-white transition"><div class="text-3xl">🏪</div><p class="font-bold mt-2">SHOP</p></button>
-    <button onclick="openForm('salon')" class="bg-white p-6 rounded-2xl shadow text-center hover:bg-black hover:text-white transition"><div class="text-3xl">💈</div><p class="font-bold mt-2">SALON</p></button>
-    <button onclick="openForm('boda')" class="bg-white p-6 rounded-2xl shadow text-center hover:bg-black hover:text-white transition"><div class="text-3xl">🏍️</div><p class="font-bold mt-2">BODA</p></button>
-    <button onclick="openForm('rentals')" class="bg-white p-6 rounded-2xl shadow text-center hover:bg-black hover:text-white transition"><div class="text-3xl">🏠</div><p class="font-bold mt-2">RENTALS</p></button>
+    <a href="?step=1&type=shop" class="bg-white p-6 rounded-2xl shadow text-center hover:bg-black hover:text-white transition block"><div class="text-3xl">🏪</div><p class="font-bold mt-2">SHOP</p></a>
+    <a href="?step=1&type=salon" class="bg-white p-6 rounded-2xl shadow text-center hover:bg-black hover:text-white transition block"><div class="text-3xl">💈</div><p class="font-bold mt-2">SALON</p></a>
+    <a href="?step=1&type=boda" class="bg-white p-6 rounded-2xl shadow text-center hover:bg-black hover:text-white transition block"><div class="text-3xl">🏍️</div><p class="font-bold mt-2">BODA</p></a>
+    <a href="?step=1&type=rentals" class="bg-white p-6 rounded-2xl shadow text-center hover:bg-black hover:text-white transition block"><div class="text-3xl">🏠</div><p class="font-bold mt-2">RENTALS</p></a>
   </div>
-
-  <h2 class="font-bold mb-3">My Registered Businesses</h2>
+  <h2 class="font-bold mb-3">My Registered Businesses - Reviews</h2>
   <div class="bg-white rounded-2xl shadow overflow-x-auto">
     <table class="w-full text-sm"><thead class="bg-gray-100"><tr><th class="p-3 text-left">Business</th><th class="p-3">Type</th><th class="p-3">Owner</th><th class="p-3">Status</th></tr></thead><tbody id="tableBody"></tbody></table>
   </div>
 </div>
 
-<!-- FORM MODAL -->
-<div id="formPage" class="hidden fixed inset-0 bg-white z-50 overflow-y-auto p-4">
-<div class="max-w-2xl mx-auto">
-  <button onclick="closeForm()" class="mb-4 text-sm">← Back to Dashboard</button>
-  <h1 class="text-xl font-bold mb-2">Register <span id="formType"></span></h1>
-  <div class="flex gap-1 mb-6 text-[11px]"><span id="s1" class="bg-black text-white px-2 py-1 rounded">1 Owner</span><span id="s2" class="bg-gray-200 px-2 py-1 rounded">2 Business</span><span id="s3" class="bg-gray-200 px-2 py-1 rounded">3 Remarks</span><span id="s4" class="bg-gray-200 px-2 py-1 rounded">4 Confirm</span><span id="s5" class="bg-gray-200 px-2 py-1 rounded">5 Map</span></div>
+<!-- STEP 1 PAGE -->
+<div id="page-step1" class="hidden p-4"><div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow mt-10">
+  <div class="flex justify-between mb-4"><span class="bg-black text-white text-xs px-2 py-1 rounded">STEP 1/5</span><span class="text-xs text-gray-500" id="type1"></span></div>
+  <h1 class="font-bold text-xl mb-4">Business Owner Info</h1>
+  <input id="owner_name" placeholder="Owner Full Name*" class="w-full p-3 border rounded-xl mb-3">
+  <input id="id_number" placeholder="ID Number*" class="w-full p-3 border rounded-xl mb-3">
+  <input id="kra_pin" placeholder="KRA PIN" class="w-full p-3 border rounded-xl mb-3">
+  <input id="phone" placeholder="Phone Number*" class="w-full p-3 border rounded-xl mb-3">
+  <input id="email" placeholder="Email (optional)" class="w-full p-3 border rounded-xl mb-3">
+  <a id="next1" href="#" class="block text-center w-full bg-black text-white p-3 rounded-xl font-bold">Next →</a>
+  <a href="?step=dashboard" class="block text-center mt-3 text-sm text-gray-500">← Back to Dashboard</a>
+</div></div>
 
-  <!-- STEP 1 -->
-  <div class="step" id="step1">
-    <h2 class="font-bold mb-3">Step 1: Owner Info</h2>
-    <input id="owner_name" placeholder="Owner Full Name*" class="w-full p-3 border rounded-xl mb-3">
-    <input id="id_number" placeholder="ID Number*" class="w-full p-3 border rounded-xl mb-3">
-    <input id="kra_pin" placeholder="KRA PIN" class="w-full p-3 border rounded-xl mb-3">
-    <input id="phone" placeholder="Phone Number*" class="w-full p-3 border rounded-xl mb-3">
-    <input id="email" placeholder="Email (optional)" class="w-full p-3 border rounded-xl mb-3">
-    <button onclick="nextStep(2)" class="w-full bg-black text-white p-3 rounded-xl">Next →</button>
-  </div>
+<!-- STEP 2 PAGE -->
+<div id="page-step2" class="hidden p-4"><div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow mt-10">
+  <div class="flex justify-between mb-4"><span class="bg-black text-white text-xs px-2 py-1 rounded">STEP 2/5</span><span class="text-xs text-gray-500" id="type2"></span></div>
+  <h1 class="font-bold text-xl mb-4">Business Info</h1>
+  <input id="business_name" placeholder="Business Name*" class="w-full p-3 border rounded-xl mb-3">
+  <div id="dynamicFields"></div>
+  <div class="flex gap-2 mt-4"><a href="?step=1&type=" id="back2" class="w-1/2 border p-3 rounded-xl text-center">← Back</a><a id="next2" href="#" class="w-1/2 bg-black text-white p-3 rounded-xl text-center font-bold">Next →</a></div>
+</div></div>
 
-  <!-- STEP 2 -->
-  <div class="step hidden" id="step2">
-    <h2 class="font-bold mb-3">Step 2: Business Details</h2>
-    <input id="business_name" placeholder="Business Name*" class="w-full p-3 border rounded-xl mb-3">
-    <div id="dynamicFields"></div>
-    <div class="flex gap-2"><button onclick="nextStep(1)" class="w-1/2 border p-3 rounded-xl">Back</button><button onclick="nextStep(3)" class="w-1/2 bg-black text-white p-3 rounded-xl">Next</button></div>
-  </div>
+<!-- STEP 3 PAGE -->
+<div id="page-step3" class="hidden p-4"><div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow mt-10">
+  <div class="mb-4"><span class="bg-black text-white text-xs px-2 py-1 rounded">STEP 3/5</span></div>
+  <h1 class="font-bold text-xl mb-4">Remarks</h1>
+  <textarea id="remarks" placeholder="Worker remarks / notes..." class="w-full p-3 border rounded-xl h-24 mb-3"></textarea>
+  <label class="flex items-center gap-2 mb-6"><input type="checkbox" id="operational" checked> Business Operational?</label>
+  <div class="flex gap-2"><a href="?step=2" id="back3" class="w-1/2 border p-3 rounded-xl text-center">← Back</a><a id="next3" href="#" class="w-1/2 bg-black text-white p-3 rounded-xl text-center font-bold">Next →</a></div>
+</div></div>
 
-  <div class="step hidden" id="step3">
-    <h2 class="font-bold mb-3">Step 3: Remarks</h2>
-    <textarea id="remarks" placeholder="Worker remarks..." class="w-full p-3 border rounded-xl mb-3 h-24"></textarea>
-    <label class="flex items-center gap-2 mb-4"><input type="checkbox" id="operational" checked> Business Operational?</label>
-    <div class="flex gap-2"><button onclick="nextStep(2)" class="w-1/2 border p-3 rounded-xl">Back</button><button onclick="nextStep(4)" class="w-1/2 bg-black text-white p-3 rounded-xl">Next</button></div>
-  </div>
+<!-- STEP 4 PAGE -->
+<div id="page-step4" class="hidden p-4"><div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow mt-10">
+  <div class="mb-4"><span class="bg-black text-white text-xs px-2 py-1 rounded">STEP 4/5</span></div>
+  <h1 class="font-bold text-xl mb-4">Email Confirmation</h1>
+  <div id="summary" class="bg-gray-100 p-4 rounded-xl mb-4 text-sm"></div>
+  <input id="otp" placeholder="Enter OTP sent to owner email" class="w-full p-3 border rounded-xl mb-3">
+  <button onclick="alert('OTP Sent to '+regData.email)" class="w-full border p-3 rounded-xl mb-4 text-sm">Resend Email Confirmation</button>
+  <div class="flex gap-2"><a href="?step=3" class="w-1/2 border p-3 rounded-xl text-center">← Back</a><a id="next4" href="#" class="w-1/2 bg-black text-white p-3 rounded-xl text-center font-bold">Verify →</a></div>
+</div></div>
 
-  <div class="step hidden" id="step4">
-    <h2 class="font-bold mb-3">Step 4: Confirmation</h2>
-    <div class="bg-gray-100 p-4 rounded-xl mb-3 text-sm" id="summary"></div>
-    <p class="text-xs text-gray-500 mb-3">An email confirmation will be sent to owner.</p>
-    <div class="flex gap-2"><button onclick="nextStep(3)" class="w-1/2 border p-3 rounded-xl">Back</button><button onclick="nextStep(5)" class="w-1/2 bg-black text-white p-3 rounded-xl">Confirm & Next</button></div>
-  </div>
-
-  <div class="step hidden" id="step5">
-    <h2 class="font-bold mb-3">Step 5: Map Location</h2>
-    <div id="map" style="height:260px;" class="rounded-xl mb-3 border"></div>
-    <input id="landmark" placeholder="Landmark description" class="w-full p-3 border rounded-xl mb-4">
-    <button onclick="submitForm()" class="w-full bg-green-600 text-white p-3 rounded-xl font-bold">✅ REGISTER BUSINESS</button>
-  </div>
-</div>
-</div>
+<!-- STEP 5 PAGE -->
+<div id="page-step5" class="hidden p-4"><div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow mt-5">
+  <div class="mb-4"><span class="bg-black text-white text-xs px-2 py-1 rounded">STEP 5/5</span></div>
+  <h1 class="font-bold text-xl mb-3">Map Location</h1>
+  <div id="map" style="height:280px" class="rounded-xl border mb-3"></div>
+  <input id="landmark" placeholder="Landmark description (near church, market...)" class="w-full p-3 border rounded-xl mb-4">
+  <button onclick="finishRegistration()" class="w-full bg-green-600 text-white p-3 rounded-xl font-bold">✅ REGISTER BUSINESS</button>
+  <a href="?step=4" class="block text-center mt-3 text-sm text-gray-500">← Back</a>
+</div></div>
 
 <script>
-let currentType='', map, marker, lat=0.2827, lng=34.7519;
 let registrations = JSON.parse(localStorage.getItem('regs')||'[]');
+let lat=0.2827,lng=34.7519, map, marker;
 
-function login(){
-  localStorage.setItem('worker', document.getElementById('workerName').value);
-  document.getElementById('wName').innerText = document.getElementById('workerName').value;
-  document.getElementById('loginPage').classList.add('hidden');
-  document.getElementById('dashboardPage').classList.remove('hidden');
-  updateDashboard();
+function showPage(){
+  document.querySelectorAll('[id^=page-]').forEach(p=>p.classList.add('hidden'));
+  if(step=='login'){ document.getElementById('page-login').classList.remove('hidden'); }
+  else if(step=='dashboard'){ document.getElementById('page-dashboard').classList.remove('hidden'); updateDashboard(); }
+  else{ document.getElementById('page-step'+step).classList.remove('hidden'); loadStep(step); }
 }
-function logout(){ document.getElementById('dashboardPage').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); }
+showPage();
+
+function doLogin(){
+  localStorage.setItem('worker', document.getElementById('workerName').value||'Worker');
+  location.href='?step=dashboard';
+}
+function doLogout(){ location.href='?step=login'; }
+
 function updateDashboard(){
-  let today = registrations.length;
-  document.getElementById('counter').innerText = today+'/30';
-  document.getElementById('remain').innerText = 30-today;
-  document.getElementById('totalDone').innerText = today;
-  document.getElementById('progress').style.width = (today/30*100)+'%';
+  document.getElementById('wName').innerText = localStorage.getItem('worker')||'Worker';
+  document.getElementById('counter').innerText = registrations.length+'/30';
+  document.getElementById('remain').innerText = 30-registrations.length;
+  document.getElementById('totalDone').innerText = registrations.length;
+  document.getElementById('progress').style.width = (registrations.length/30*100)+'%';
   let html=''; registrations.slice().reverse().forEach(r=>{ html+=`<tr class="border-t"><td class="p-3">${r.business_name}</td><td class="p-3">${r.type}</td><td class="p-3">${r.owner_name}</td><td class="p-3"><span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">Done</span></td></tr>`});
-  if(!html) html='<tr><td colspan=4 class="p-6 text-center text-gray-400">No businesses yet</td></tr>';
+  if(!html) html='<tr><td colspan=4 class="p-6 text-center text-gray-400">No businesses yet - click tiles above</td></tr>';
   document.getElementById('tableBody').innerHTML=html;
 }
-function openForm(type){
-  currentType=type; document.getElementById('formType').innerText=type.toUpperCase();
-  document.getElementById('formPage').classList.remove('hidden');
-  let fields='';
-  if(type=='shop') fields=`<select id="shop_type" class="w-full p-3 border rounded-xl mb-3"><option>Retail Shop</option><option>Wholesale</option><option>Hardware</option><option>Grocery</option></select><input id="product" placeholder="Products sold" class="w-full p-3 border rounded-xl mb-3">`;
-  if(type=='salon') fields=`<select id="salon_type" class="w-full p-3 border rounded-xl mb-3"><option>Barbershop</option><option>Beauty Salon</option><option>Unisex</option></select><input id="seats" type="number" placeholder="Number of Seats" class="w-full p-3 border rounded-xl mb-3">`;
-  if(type=='boda') fields=`<input id="number_plate" placeholder="Number Plate*" class="w-full p-3 border rounded-xl mb-3"><input id="stage" placeholder="Stage Name" class="w-full p-3 border rounded-xl mb-3"><input id="sacco" placeholder="SACCO Name" class="w-full p-3 border rounded-xl mb-3">`;
-  if(type=='rentals') fields=`<input id="plot_name" placeholder="Plot/Building Name" class="w-full p-3 border rounded-xl mb-3"><input id="units" type="number" placeholder="No. of Units" class="w-full p-3 border rounded-xl mb-3"><input id="rent" placeholder="Rent per Unit" class="w-full p-3 border rounded-xl mb-3">`;
-  document.getElementById('dynamicFields').innerHTML=fields;
-  nextStep(1);
+
+function loadStep(n){
+  document.getElementById('type1')?.innerText && (document.getElementById('type1').innerText = type.toUpperCase());
+  if(n==1){
+    document.getElementById('owner_name').value = regData.owner_name||''; document.getElementById('id_number').value=regData.id_number||''; document.getElementById('kra_pin').value=regData.kra_pin||''; document.getElementById('phone').value=regData.phone||''; document.getElementById('email').value=regData.email||'';
+    document.getElementById('next1').onclick = ()=>{ regData.owner_name=owner_name.value; regData.id_number=id_number.value; regData.kra_pin=kra_pin.value; regData.phone=phone.value; regData.email=email.value; saveAndGo(2); return false; };
+  }
+  if(n==2){
+    document.getElementById('type2').innerText = type.toUpperCase(); document.getElementById('back2').href='?step=1&type='+type; document.getElementById('business_name').value=regData.business_name||'';
+    let html=''; if(type=='shop') html=`<select id="shop_type" class="w-full p-3 border rounded-xl mb-3"><option>Retail Shop</option><option>Wholesale</option><option>Hardware</option><option>Grocery</option></select><input id="product" placeholder="Products sold" class="w-full p-3 border rounded-xl mb-3">`;
+    if(type=='salon') html=`<select id="salon_type" class="w-full p-3 border rounded-xl mb-3"><option>Barbershop</option><option>Beauty Salon</option><option>Unisex</option></select><input id="seats" type="number" placeholder="Number of Seats" class="w-full p-3 border rounded-xl mb-3">`;
+    if(type=='boda') html=`<input id="number_plate" placeholder="Number Plate*" class="w-full p-3 border rounded-xl mb-3"><input id="stage" placeholder="Stage Name" class="w-full p-3 border rounded-xl mb-3"><input id="sacco" placeholder="SACCO Name" class="w-full p-3 border rounded-xl mb-3">`;
+    if(type=='rentals') html=`<input id="plot_name" placeholder="Plot/Building Name" class="w-full p-3 border rounded-xl mb-3"><input id="units" type="number" placeholder="No. of Units" class="w-full p-3 border rounded-xl mb-3"><input id="rent" placeholder="Rent per Unit" class="w-full p-3 border rounded-xl mb-3">`;
+    document.getElementById('dynamicFields').innerHTML=html;
+    // fill saved
+    setTimeout(()=>{ Object.keys(regData).forEach(k=>{ let el=document.getElementById(k); if(el) el.value=regData[k]; }); },100);
+    document.getElementById('next2').onclick = ()=>{ regData.business_name=document.getElementById('business_name').value; regData.type=type; document.querySelectorAll('#dynamicFields input, #dynamicFields select').forEach(el=>{ regData[el.id]=el.value }); saveAndGo(3); return false; };
+  }
+  if(n==3){
+    document.getElementById('remarks').value=regData.remarks||''; document.getElementById('back3').href='?step=2&type='+type;
+    document.getElementById('next3').onclick = ()=>{ regData.remarks=remarks.value; regData.operational=document.getElementById('operational').checked; saveAndGo(4); return false; };
+  }
+  if(n==4){
+    document.getElementById('summary').innerHTML=`<b>${regData.business_name||''}</b><br>Owner: ${regData.owner_name||''}<br>ID: ${regData.id_number||''}<br>Phone: ${regData.phone||''}<br>Type: ${regData.type||''}<br>Remarks: ${regData.remarks||'-'}`;
+    document.getElementById('next4').href='?step=5&type='+type;
+  }
+  if(n==5){ setTimeout(initMap,400); }
 }
-function closeForm(){ document.getElementById('formPage').classList.add('hidden'); }
-function nextStep(n){
-  document.querySelectorAll('.step').forEach(s=>s.classList.add('hidden'));
-  document.getElementById('step'+n).classList.remove('hidden');
+function saveAndGo(next){ localStorage.setItem('regData', JSON.stringify(regData)); location.href='?step='+next+'&type='+type; }
+
+function initMap(){
+  if(map){ map.invalidateSize(); return; }
+  map=L.map('map').setView([lat,lng],14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  marker=L.marker([lat,lng],{draggable:true}).addTo(map); marker.on('dragend', e=>{lat=e.target.getLatLng().lat; lng=e.target.getLatLng().lng;});
+  map.locate({setView:true,maxZoom:16}); map.on('locationfound', e=>{lat=e.latlng.lat; lng=e.latlng.lng; marker.setLatLng(e.latlng);});
+}
+function finishRegistration(){
+  regData.lat=lat; regData.lng=lng; regData.landmark=document.getElementById('landmark').value; regData.date=new Date().toLocaleString();
+  registrations.push(regData); localStorage.setItem('regs', JSON.stringify(registrations));
+  localStorage.removeItem('regData'); localStorage.removeItem('currentType');
+  alert('✅ '+regData.business_name+' Registered Successfully!'); location.href='?step=dashboard';
+}
+</script>
+</body>
+</html>sList.remove('hidden');
   document.querySelectorAll('[id^=s]').forEach(el=>{el.className='bg-gray-200 px-2 py-1 rounded'});
   document.getElementById('s'+n).className='bg-black text-white px-2 py-1 rounded';
   if(n==4){ document.getElementById('summary').innerHTML=`<b>${document.getElementById('business_name').value}</b><br>Owner: ${document.getElementById('owner_name').value}<br>Phone: ${document.getElementById('phone').value}<br>Type: ${currentType}`; }
