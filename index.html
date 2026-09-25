@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Worker Portal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body class="bg-gray-50">
+
+<!-- LOGIN -->
+<div id="loginPage" class="min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm">
+    <h1 class="text-2xl font-bold">Worker Login</h1>
+    <p class="text-gray-500 mb-6 text-sm">Business Registration System</p>
+    <input id="workerName" placeholder="Worker Name" class="w-full p-3 border rounded-xl mb-3" value="John">
+    <input id="workerPhone" placeholder="Phone" class="w-full p-3 border rounded-xl mb-4" value="0712345678">
+    <button onclick="login()" class="w-full bg-black text-white p-3 rounded-xl font-bold">Login</button>
+    <p class="text-xs text-gray-400 mt-3 text-center">Demo - any name works</p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboardPage" class="hidden p-4 max-w-5xl mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-xl font-bold">Hi, <span id="wName"></span> 👋</h1>
+    <button onclick="logout()" class="text-sm bg-white px-3 py-1 rounded-full shadow">Logout</button>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+    <div class="bg-white p-4 rounded-2xl shadow"><p class="text-[11px] text-gray-500">TODAY</p><p class="text-2xl font-bold" id="counter">0/30</p><div class="w-full bg-gray-200 h-2 rounded mt-2"><div id="progress" class="bg-green-500 h-2 rounded" style="width:0%"></div></div></div>
+    <div class="bg-white p-4 rounded-2xl shadow"><p class="text-[11px] text-gray-500">REMAINING</p><p class="text-2xl font-bold" id="remain">30</p></div>
+    <div class="bg-white p-4 rounded-2xl shadow"><p class="text-[11px] text-gray-500">TOTAL DONE</p><p class="text-2xl font-bold" id="totalDone">0</p></div>
+    <div class="bg-white p-4 rounded-2xl shadow"><p class="text-[11px] text-gray-500">REVIEWS</p><p class="text-sm">See below</p></div>
+  </div>
+
+  <h2 class="font-bold mb-3">Register New Business</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+    <button onclick="openForm('shop')" class="bg-white p-6 rounded-2xl shadow text-center hover:bg-black hover:text-white transition"><div class="text-3xl">🏪</div><p class="font-bold mt-2">SHOP</p></button>
+    <button onclick="openForm('salon')" class="bg-white p-6 rounded-2xl shadow text-center hover:bg-black hover:text-white transition"><div class="text-3xl">💈</div><p class="font-bold mt-2">SALON</p></button>
+    <button onclick="openForm('boda')" class="bg-white p-6 rounded-2xl shadow text-center hover:bg-black hover:text-white transition"><div class="text-3xl">🏍️</div><p class="font-bold mt-2">BODA</p></button>
+    <button onclick="openForm('rentals')" class="bg-white p-6 rounded-2xl shadow text-center hover:bg-black hover:text-white transition"><div class="text-3xl">🏠</div><p class="font-bold mt-2">RENTALS</p></button>
+  </div>
+
+  <h2 class="font-bold mb-3">My Registered Businesses</h2>
+  <div class="bg-white rounded-2xl shadow overflow-x-auto">
+    <table class="w-full text-sm"><thead class="bg-gray-100"><tr><th class="p-3 text-left">Business</th><th class="p-3">Type</th><th class="p-3">Owner</th><th class="p-3">Status</th></tr></thead><tbody id="tableBody"></tbody></table>
+  </div>
+</div>
+
+<!-- FORM MODAL -->
+<div id="formPage" class="hidden fixed inset-0 bg-white z-50 overflow-y-auto p-4">
+<div class="max-w-2xl mx-auto">
+  <button onclick="closeForm()" class="mb-4 text-sm">← Back to Dashboard</button>
+  <h1 class="text-xl font-bold mb-2">Register <span id="formType"></span></h1>
+  <div class="flex gap-1 mb-6 text-[11px]"><span id="s1" class="bg-black text-white px-2 py-1 rounded">1 Owner</span><span id="s2" class="bg-gray-200 px-2 py-1 rounded">2 Business</span><span id="s3" class="bg-gray-200 px-2 py-1 rounded">3 Remarks</span><span id="s4" class="bg-gray-200 px-2 py-1 rounded">4 Confirm</span><span id="s5" class="bg-gray-200 px-2 py-1 rounded">5 Map</span></div>
+
+  <!-- STEP 1 -->
+  <div class="step" id="step1">
+    <h2 class="font-bold mb-3">Step 1: Owner Info</h2>
+    <input id="owner_name" placeholder="Owner Full Name*" class="w-full p-3 border rounded-xl mb-3">
+    <input id="id_number" placeholder="ID Number*" class="w-full p-3 border rounded-xl mb-3">
+    <input id="kra_pin" placeholder="KRA PIN" class="w-full p-3 border rounded-xl mb-3">
+    <input id="phone" placeholder="Phone Number*" class="w-full p-3 border rounded-xl mb-3">
+    <input id="email" placeholder="Email (optional)" class="w-full p-3 border rounded-xl mb-3">
+    <button onclick="nextStep(2)" class="w-full bg-black text-white p-3 rounded-xl">Next →</button>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step hidden" id="step2">
+    <h2 class="font-bold mb-3">Step 2: Business Details</h2>
+    <input id="business_name" placeholder="Business Name*" class="w-full p-3 border rounded-xl mb-3">
+    <div id="dynamicFields"></div>
+    <div class="flex gap-2"><button onclick="nextStep(1)" class="w-1/2 border p-3 rounded-xl">Back</button><button onclick="nextStep(3)" class="w-1/2 bg-black text-white p-3 rounded-xl">Next</button></div>
+  </div>
+
+  <div class="step hidden" id="step3">
+    <h2 class="font-bold mb-3">Step 3: Remarks</h2>
+    <textarea id="remarks" placeholder="Worker remarks..." class="w-full p-3 border rounded-xl mb-3 h-24"></textarea>
+    <label class="flex items-center gap-2 mb-4"><input type="checkbox" id="operational" checked> Business Operational?</label>
+    <div class="flex gap-2"><button onclick="nextStep(2)" class="w-1/2 border p-3 rounded-xl">Back</button><button onclick="nextStep(4)" class="w-1/2 bg-black text-white p-3 rounded-xl">Next</button></div>
+  </div>
+
+  <div class="step hidden" id="step4">
+    <h2 class="font-bold mb-3">Step 4: Confirmation</h2>
+    <div class="bg-gray-100 p-4 rounded-xl mb-3 text-sm" id="summary"></div>
+    <p class="text-xs text-gray-500 mb-3">An email confirmation will be sent to owner.</p>
+    <div class="flex gap-2"><button onclick="nextStep(3)" class="w-1/2 border p-3 rounded-xl">Back</button><button onclick="nextStep(5)" class="w-1/2 bg-black text-white p-3 rounded-xl">Confirm & Next</button></div>
+  </div>
+
+  <div class="step hidden" id="step5">
+    <h2 class="font-bold mb-3">Step 5: Map Location</h2>
+    <div id="map" style="height:260px;" class="rounded-xl mb-3 border"></div>
+    <input id="landmark" placeholder="Landmark description" class="w-full p-3 border rounded-xl mb-4">
+    <button onclick="submitForm()" class="w-full bg-green-600 text-white p-3 rounded-xl font-bold">✅ REGISTER BUSINESS</button>
+  </div>
+</div>
+</div>
+
+<script>
+let currentType='', map, marker, lat=0.2827, lng=34.7519;
+let registrations = JSON.parse(localStorage.getItem('regs')||'[]');
+
+function login(){
+  localStorage.setItem('worker', document.getElementById('workerName').value);
+  document.getElementById('wName').innerText = document.getElementById('workerName').value;
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('dashboardPage').classList.remove('hidden');
+  updateDashboard();
+}
+function logout(){ document.getElementById('dashboardPage').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); }
+function updateDashboard(){
+  let today = registrations.length;
+  document.getElementById('counter').innerText = today+'/30';
+  document.getElementById('remain').innerText = 30-today;
+  document.getElementById('totalDone').innerText = today;
+  document.getElementById('progress').style.width = (today/30*100)+'%';
+  let html=''; registrations.slice().reverse().forEach(r=>{ html+=`<tr class="border-t"><td class="p-3">${r.business_name}</td><td class="p-3">${r.type}</td><td class="p-3">${r.owner_name}</td><td class="p-3"><span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">Done</span></td></tr>`});
+  if(!html) html='<tr><td colspan=4 class="p-6 text-center text-gray-400">No businesses yet</td></tr>';
+  document.getElementById('tableBody').innerHTML=html;
+}
+function openForm(type){
+  currentType=type; document.getElementById('formType').innerText=type.toUpperCase();
+  document.getElementById('formPage').classList.remove('hidden');
+  let fields='';
+  if(type=='shop') fields=`<select id="shop_type" class="w-full p-3 border rounded-xl mb-3"><option>Retail Shop</option><option>Wholesale</option><option>Hardware</option><option>Grocery</option></select><input id="product" placeholder="Products sold" class="w-full p-3 border rounded-xl mb-3">`;
+  if(type=='salon') fields=`<select id="salon_type" class="w-full p-3 border rounded-xl mb-3"><option>Barbershop</option><option>Beauty Salon</option><option>Unisex</option></select><input id="seats" type="number" placeholder="Number of Seats" class="w-full p-3 border rounded-xl mb-3">`;
+  if(type=='boda') fields=`<input id="number_plate" placeholder="Number Plate*" class="w-full p-3 border rounded-xl mb-3"><input id="stage" placeholder="Stage Name" class="w-full p-3 border rounded-xl mb-3"><input id="sacco" placeholder="SACCO Name" class="w-full p-3 border rounded-xl mb-3">`;
+  if(type=='rentals') fields=`<input id="plot_name" placeholder="Plot/Building Name" class="w-full p-3 border rounded-xl mb-3"><input id="units" type="number" placeholder="No. of Units" class="w-full p-3 border rounded-xl mb-3"><input id="rent" placeholder="Rent per Unit" class="w-full p-3 border rounded-xl mb-3">`;
+  document.getElementById('dynamicFields').innerHTML=fields;
+  nextStep(1);
+}
+function closeForm(){ document.getElementById('formPage').classList.add('hidden'); }
+function nextStep(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.add('hidden'));
+  document.getElementById('step'+n).classList.remove('hidden');
+  document.querySelectorAll('[id^=s]').forEach(el=>{el.className='bg-gray-200 px-2 py-1 rounded'});
+  document.getElementById('s'+n).className='bg-black text-white px-2 py-1 rounded';
+  if(n==4){ document.getElementById('summary').innerHTML=`<b>${document.getElementById('business_name').value}</b><br>Owner: ${document.getElementById('owner_name').value}<br>Phone: ${document.getElementById('phone').value}<br>Type: ${currentType}`; }
+  if(n==5){ setTimeout(initMap,300); }
+}
+function initMap(){
+  if(map){ map.invalidateSize(); return; }
+  map=L.map('map').setView([lat,lng],14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  marker=L.marker([lat,lng],{draggable:true}).addTo(map);
+  marker.on('dragend', e=>{ lat=e.target.getLatLng().lat; lng=e.target.getLatLng().lng; });
+  map.locate({setView:true,maxZoom:16});
+  map.on('locationfound', e=>{ lat=e.latlng.lat; lng=e.latlng.lng; marker.setLatLng(e.latlng); });
+}
+function submitForm(){
+  let data={
+    type: currentType,
+    owner_name: document.getElementById('owner_name').value,
+    id_number: document.getElementById('id_number').value,
+    business_name: document.getElementById('business_name').value,
+    phone: document.getElementById('phone').value,
+    remarks: document.getElementById('remarks').value,
+    lat, lng,
+    landmark: document.getElementById('landmark').value,
+    date: new Date().toLocaleString()
+  };
+  if(!data.owner_name ||!data.business_name){ alert('Fill required fields'); return; }
+  registrations.push(data);
+  localStorage.setItem('regs', JSON.stringify(registrations));
+  alert('✅ '+data.business_name+' Registered Successfully!');
+  closeForm();
+  updateDashboard();
+  // clear
+  document.querySelectorAll('input').forEach(i=>{ if(i.type!='checkbox') i.value=''; });
+}
+</script>
+</body>
+</html>
