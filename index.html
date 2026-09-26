@@ -60,9 +60,9 @@ let regData = JSON.parse(localStorage.getItem('regData') || '{}');
   <div class="flex justify-between mb-4"><span class="bg-black text-white text-xs px-2 py-1 rounded">STEP 1/5</span><span class="text-xs text-gray-500" id="type1"></span></div>
   <h1 class="font-bold text-xl mb-4">Business Owner Info</h1>
   <input id="owner_name" placeholder="Owner Full Name*" class="w-full p-3 border rounded-xl mb-3">
-  <input id="id_number" placeholder="ID Number*" class="w-full p-3 border rounded-xl mb-3">
-  <input id="kra_pin" placeholder="KRA PIN" class="w-full p-3 border rounded-xl mb-3">
-  <input id="phone" placeholder="Phone Number*" class="w-full p-3 border rounded-xl mb-3">
+  <input id="id_number" placeholder="ID Number* N/A" class="w-full p-3 border rounded-xl mb-3" disabled="">
+  <input id="kra_pin" placeholder="KRA PIN N/A" class="w-full p-3 border rounded-xl mb-3" disabled>
+  <input id="phone" placeholder="Phone Number*" class="w-full p-3 border rounded-xl mb-3" required>
   <input id="email" placeholder="Email (optional)" class="w-full p-3 border rounded-xl mb-3">
   <a id="next1" href="#" class="block text-center w-full bg-black text-white p-3 rounded-xl font-bold">Next →</a>
   <a href="?step=dashboard" class="block text-center mt-3 text-sm text-gray-500">← Back to Dashboard</a>
@@ -145,7 +145,7 @@ function loadStep(n){
     document.getElementById('type2').innerText = type.toUpperCase(); document.getElementById('back2').href='?step=1&type='+type; document.getElementById('business_name').value=regData.business_name||'';
     let html=''; if(type=='shop') html=`<select id="shop_type" class="w-full p-3 border rounded-xl mb-3"><option>Retail Shop</option><option>Wholesale</option><option>Hardware</option><option>Grocery</option></select><input id="product" placeholder="Products sold" class="w-full p-3 border rounded-xl mb-3">`;
     if(type=='salon') html=`<select id="salon_type" class="w-full p-3 border rounded-xl mb-3"><option>Barbershop</option><option>Beauty Salon</option><option>Unisex</option></select><input id="seats" type="number" placeholder="Number of Seats" class="w-full p-3 border rounded-xl mb-3">`;
-    if(type=='boda') html=`<input id="number_plate" placeholder="Number Plate*" class="w-full p-3 border rounded-xl mb-3"><input id="stage" placeholder="Stage Name" class="w-full p-3 border rounded-xl mb-3"><input id="sacco" placeholder="SACCO Name" class="w-full p-3 border rounded-xl mb-3">`;
+    if(type=='boda') html=`<input id="number_plate" placeholder="Number Plate* N/A" class="w-full p-3 border rounded-xl mb-3" disabled><input id="stage" placeholder="Stage Name" class="w-full p-3 border rounded-xl mb-3"><input id="sacco" placeholder="SACCO Name" class="w-full p-3 border rounded-xl mb-3">`;
     if(type=='rentals') html=`<input id="plot_name" placeholder="Plot/Building Name" class="w-full p-3 border rounded-xl mb-3"><input id="units" type="number" placeholder="No. of Units" class="w-full p-3 border rounded-xl mb-3"><input id="rent" placeholder="Rent per Unit" class="w-full p-3 border rounded-xl mb-3">`;
     document.getElementById('dynamicFields').innerHTML=html;
     // fill saved
@@ -178,3 +178,4 @@ function finishRegistration(){
 }
 </script>
 </body>
+</html>
